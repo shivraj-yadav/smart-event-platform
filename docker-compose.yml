@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: smart_event_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: smart-event-platform
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - smart_event_network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: smart_event_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - smart_event_network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: smart_event_redis_ui
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - smart_event_network
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  smart_event_network:
+    driver: bridge
